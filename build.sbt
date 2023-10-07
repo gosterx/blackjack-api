@@ -14,6 +14,7 @@ lazy val root = (project in file("."))
       Http4s.server,
       Http4s.circe,
       Circe.core,
+      Circe.generic,
       Circe.parser,
       Circe.refined,
       Doobie.postgres,
@@ -21,6 +22,7 @@ lazy val root = (project in file("."))
       Refined.cats,
       log4CatsNoop,
       flyway,
-      redis4catsEffects
+      redis4catsEffects,
+      tsec
     )
   )
