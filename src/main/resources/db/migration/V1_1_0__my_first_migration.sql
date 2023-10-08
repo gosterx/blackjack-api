@@ -6,4 +6,4 @@ CREATE TABLE user_accounts (
     email VARCHAR(100) NOT NULL,
     password_hash VARCHAR(4000) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
-)
+);

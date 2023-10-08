@@ -20,12 +20,18 @@ object Dependencies {
   }
 
   object Doobie {
-    val postgres = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4"
+    val postgres      = "org.tpolecat" %% "doobie-postgres"       % "1.0.0-RC4"
+    val postgresCirce = "org.tpolecat" %% "doobie-postgres-circe" % "1.0.0-RC4"
+    val hikari        = "org.tpolecat" %% "doobie-hikari"         % "1.0.0-RC4"
   }
 
   object Refined {
     val core = "eu.timepit" %% "refined"      % "0.11.0"
     val cats = "eu.timepit" %% "refined-cats" % "0.11.0"
+  }
+
+  object Ciris {
+    val core = "is.cir" %% "ciris" % "3.3.0"
   }
 
   val log4CatsNoop      = "org.typelevel"      %% "log4cats-noop"      % "2.6.0"
