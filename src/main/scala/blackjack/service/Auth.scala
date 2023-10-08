@@ -12,7 +12,7 @@ trait Auth[F[_]]:
   def signUp(request: CreateUser): F[Unit]
 
 object Auth:
-  def of[F[_]: Sync]()(using transactor: Transactor[F]): Auth[F] = new Auth[F]:
+  def of[F[_]: Sync](using transactor: Transactor[F]): Auth[F] = new Auth[F]:
     override def signUp(request: CreateUser): F[Unit] =
       for
         passwordHash <- BCrypt.hashpw[F](request.password)

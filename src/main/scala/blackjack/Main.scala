@@ -2,7 +2,7 @@ package blackjack
 
 import blackjack.domain.config.AppConfig
 import blackjack.http.Ember
-import blackjack.modules.RepositoryModule
+import blackjack.modules.{ HttpApi, RepositoryModule, ServiceModule }
 import cats.Show
 import cats.effect.{ IO, IOApp }
 import com.comcast.ip4s.Port
@@ -12,5 +12,7 @@ object Main extends IOApp.Simple:
     (for
       config     <- AppConfig.load[IO].toResource
       repository <- RepositoryModule.make[IO](config.db)
-      server     <- Ember.default[IO](Port.fromInt(8080).get)
+      service    <- ServiceModule.make[IO](repository)
+      httpApp = HttpApi[IO](service).httpApp
+      server <- Ember.default[IO](httpApp, config.http.port)
     yield server).useForever
