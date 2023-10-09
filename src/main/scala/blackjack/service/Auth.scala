@@ -1,7 +1,7 @@
 package blackjack.service
 
 import blackjack.domain.user.{ CreateUser, LoginUser, UserInfo }
-import blackjack.http.JwtGenerator
+import blackjack.http.JwtProcessor
 import blackjack.repository.UserRepository
 import cats.effect.kernel.Sync
 import cats.syntax.all.*
@@ -16,7 +16,7 @@ trait Auth[F[_]]:
   def login(request: LoginUser): F[String]
 
 object Auth:
-  def of[F[_]: Sync](jwtGenerator: JwtGenerator[F])(using transactor: Transactor[F]): F[Auth[F]] =
+  def of[F[_]: Sync](jwtGenerator: JwtProcessor[F])(using transactor: Transactor[F]): F[Auth[F]] =
     for
       logger <- Slf4jLogger.create[F]
     yield new Auth[F]:

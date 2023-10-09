@@ -1,13 +1,13 @@
 package blackjack.http
 
 import blackjack.domain.user.User
-import cats.Functor
+import cats.{ Functor, Monad }
 import cats.effect.Clock
 import cats.syntax.all.*
 import io.circe.syntax.EncoderOps
 import pdi.jwt.{ JwtAlgorithm, JwtCirce, JwtClaim, JwtOptions }
 
-class JwtGenerator[F[_]: Functor: Clock](secret: String):
+class JwtProcessor[F[_]: Monad: Clock](secret: String):
   private val algorithm = JwtAlgorithm.HS256
 
   def generateToken(user: User): F[String] =
@@ -21,5 +21,8 @@ class JwtGenerator[F[_]: Functor: Clock](secret: String):
       JwtCirce.encode(claim, secret, algorithm)
     }
 
-object JwtGenerator:
-  def apply[F[_]: Functor: Clock](secret: String): JwtGenerator[F] = new JwtGenerator[F](secret)
+  def decode(token: String): Option[User] =
+    JwtCirce.decodeJson(token, secret, Seq(algorithm)).toOption.flatMap(_.as[User].toOption)
+
+object JwtProcessor:
+  def apply[F[_]: Monad: Clock](secret: String): JwtProcessor[F] = new JwtProcessor[F](secret)

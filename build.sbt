@@ -2,6 +2,8 @@ import Dependencies._
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
+ThisBuild / scalacOptions ++= Seq("-Ykind-projector:underscores")
+
 ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = (project in file("."))

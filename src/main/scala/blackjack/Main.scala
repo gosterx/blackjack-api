@@ -1,7 +1,7 @@
 package blackjack
 
 import blackjack.domain.config.AppConfig
-import blackjack.http.Ember
+import blackjack.http.{ Ember, JwtProcessor }
 import blackjack.modules.{ HttpApi, RepositoryModule, ServiceModule }
 import cats.Show
 import cats.effect.{ IO, IOApp }
@@ -14,9 +14,10 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 object Main extends IOApp.Simple:
   override def run: IO[Unit] =
     (for
-      config     <- AppConfig.load[IO].toResource
+      config <- AppConfig.load[IO].toResource
+      jwtProcessor = JwtProcessor[IO](config.jwt.secret)
       repository <- RepositoryModule.make[IO](config.db)
-      service    <- ServiceModule.make[IO](repository, config)
-      httpApp = HttpApi[IO](service).httpApp
+      service    <- ServiceModule.make[IO](jwtProcessor, repository, config)
+      httpApp = HttpApi[IO](jwtProcessor, service).httpApp
       server <- Ember.default[IO](httpApp, config.http.port)
     yield server).useForever

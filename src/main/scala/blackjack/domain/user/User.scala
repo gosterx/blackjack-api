@@ -1,7 +1,7 @@
 package blackjack.domain.user
 
-import io.circe.Encoder
-import io.circe.generic.semiauto.deriveEncoder
+import io.circe.{ Decoder, Encoder }
+import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 
 final case class User(
     id: Int,
@@ -13,3 +13,4 @@ final case class User(
 
 object User:
   given Encoder[User] = deriveEncoder
+  given Decoder[User] = deriveDecoder
