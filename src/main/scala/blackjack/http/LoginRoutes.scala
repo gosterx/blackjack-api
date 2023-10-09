@@ -1,6 +1,6 @@
 package blackjack.http
 
-import blackjack.domain.user.CreateUser
+import blackjack.domain.user.{ CreateUser, LoginUser }
 import blackjack.service.Auth
 import cats.syntax.all.*
 import cats.effect.Concurrent
@@ -15,6 +15,13 @@ class LoginRoutes[F[_]: Concurrent](auth: Auth[F]) extends Http4sDsl[F]:
         createUser <- req.as[CreateUser]
         _          <- auth.signUp(createUser)
         response   <- Ok("")
+      yield response
+
+    case req @ POST -> Root / "login" =>
+      for
+        loginUser <- req.as[LoginUser]
+        _         <- auth.login(loginUser)
+        response  <- Ok("")
       yield response
   }
 
