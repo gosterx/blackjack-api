@@ -13,9 +13,11 @@ final case class ServiceModule[F[_]](
 )
 
 object ServiceModule:
-  def make[F[_]: Sync: Logger](
+  def make[F[_]: Sync](
       repositoryModule: RepositoryModule[F],
       config: AppConfig
   ): Resource[F, ServiceModule[F]] =
     given Transactor[F] = repositoryModule.postgres
-    Resource.pure(ServiceModule(Auth.of[F](JwtGenerator[F](config.jwt.secret))))
+    for
+      auth <- Auth.of[F](JwtGenerator[F](config.jwt.secret)).toResource
+    yield ServiceModule(auth)
