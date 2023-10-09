@@ -39,4 +39,5 @@ object Dependencies {
   val redis4catsEffects = "dev.profunktor"       %% "redis4cats-effects" % "1.5.0"
   val tsec              = "io.github.jmcardon"   %% "tsec-password"      % "0.4.0"
   val jwtCirce          = "com.github.jwt-scala" %% "jwt-circe"          % "9.4.4"
+  val logback           = "ch.qos.logback"        % "logback-classic"    % "1.2.11"
 }

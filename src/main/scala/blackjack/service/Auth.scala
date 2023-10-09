@@ -9,6 +9,7 @@ import tsec.passwordhashers.jca.BCrypt
 import tsec.passwordhashers.PasswordHash
 import doobie.util.transactor.Transactor
 import doobie.implicits.*
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import tsec.common.{ VerificationFailed, Verified }
 
 trait Auth[F[_]]:
@@ -16,20 +17,23 @@ trait Auth[F[_]]:
   def login(request: LoginUser): F[String]
 
 object Auth:
-  def of[F[_]: Sync](jwtGenerator: JwtGenerator[F])(using transactor: Transactor[F]): Auth[F] = new Auth[F]:
-    override def signUp(request: CreateUser): F[String] =
-      for
-        passwordHash <- BCrypt.hashpw[F](request.password)
-        userInfo = UserInfo.fromCreateUser(request, passwordHash.trim)
-        user  <- UserRepository.insert(userInfo).transact(transactor)
-        token <- jwtGenerator.generateToken(user)
-      yield token
+  def of[F[_]: Sync: Logger](jwtGenerator: JwtGenerator[F])(using transactor: Transactor[F]): Auth[F] =
+    new Auth[F]:
+      override def signUp(request: CreateUser): F[String] =
+        for
+          passwordHash <- BCrypt.hashpw[F](request.password)
+          userInfo = UserInfo.fromCreateUser(request, passwordHash.trim)
+          user  <- UserRepository.insert(userInfo).transact(transactor)
+          token <- jwtGenerator.generateToken(user)
+          _     <- Logger[F].info("User was successfully signed up")
+        yield token
 
-    override def login(request: LoginUser): F[String] =
-      for
-        existingPasswordHash <- UserRepository.selectPasswordHash(request.loginName).transact(transactor)
-        validationResult     <- BCrypt.checkpwBool[F](request.password, PasswordHash(existingPasswordHash))
-        _                    <- Sync[F].raiseWhen(!validationResult)(new RuntimeException("Hash validation failed"))
-        user                 <- UserRepository.select(request.loginName).transact(transactor)
-        token                <- jwtGenerator.generateToken(user)
-      yield token
+      override def login(request: LoginUser): F[String] =
+        for
+          existingPasswordHash <- UserRepository.selectPasswordHash(request.loginName).transact(transactor)
+          validationResult     <- BCrypt.checkpwBool[F](request.password, PasswordHash(existingPasswordHash))
+          _                    <- Sync[F].raiseWhen(!validationResult)(new RuntimeException("Hash validation failed"))
+          user                 <- UserRepository.select(request.loginName).transact(transactor)
+          token                <- jwtGenerator.generateToken(user)
+          _                    <- Logger[F].info("User was successfully logged in")
+        yield token
