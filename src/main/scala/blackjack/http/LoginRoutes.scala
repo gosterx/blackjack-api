@@ -4,7 +4,7 @@ import blackjack.domain.user.{ CreateUser, LoginUser }
 import blackjack.service.Auth
 import cats.syntax.all.*
 import cats.effect.Concurrent
-import org.http4s.HttpRoutes
+import org.http4s.{ HttpRoutes, ResponseCookie }
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityDecoder.*
 
@@ -13,15 +13,15 @@ class LoginRoutes[F[_]: Concurrent](auth: Auth[F]) extends Http4sDsl[F]:
     case req @ POST -> Root / "signUp" =>
       for
         createUser <- req.as[CreateUser]
-        _          <- auth.signUp(createUser)
-        response   <- Ok("")
+        token      <- auth.signUp(createUser)
+        response   <- Ok("Signed Up!").map(_.addCookie(ResponseCookie("token", token)))
       yield response
 
     case req @ POST -> Root / "login" =>
       for
         loginUser <- req.as[LoginUser]
-        _         <- auth.login(loginUser)
-        response  <- Ok("")
+        token     <- auth.login(loginUser)
+        response  <- Ok("Logged In!").map(_.addCookie(ResponseCookie("token", token)))
       yield response
   }
 

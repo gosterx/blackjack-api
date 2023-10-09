@@ -10,11 +10,11 @@ final case class UserInfo(
     firstName: String,
     lastName: String,
     email: String,
-    passwordHash: PasswordHash[BCrypt]
+    passwordHash: String
 )
 
 object UserInfo:
-  def fromCreateUser(createUser: CreateUser, passwordHash: PasswordHash[BCrypt]): UserInfo =
+  def fromCreateUser(createUser: CreateUser, passwordHash: String): UserInfo =
     UserInfo(
       loginName = createUser.loginName,
       firstName = createUser.firstName,

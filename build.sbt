@@ -26,6 +26,7 @@ lazy val root = (project in file("."))
       log4CatsNoop,
       flyway,
       redis4catsEffects,
-      tsec
+      tsec,
+      jwtCirce
     )
   )

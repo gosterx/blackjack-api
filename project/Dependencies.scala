@@ -34,8 +34,9 @@ object Dependencies {
     val core = "is.cir" %% "ciris" % "3.3.0"
   }
 
-  val log4CatsNoop      = "org.typelevel"      %% "log4cats-noop"      % "2.6.0"
-  val flyway            = "org.flywaydb"        % "flyway-core"        % "8.5.13"
-  val redis4catsEffects = "dev.profunktor"     %% "redis4cats-effects" % "1.5.0"
-  val tsec              = "io.github.jmcardon" %% "tsec-password"      % "0.4.0"
+  val log4CatsNoop      = "org.typelevel"        %% "log4cats-noop"      % "2.6.0"
+  val flyway            = "org.flywaydb"          % "flyway-core"        % "8.5.13"
+  val redis4catsEffects = "dev.profunktor"       %% "redis4cats-effects" % "1.5.0"
+  val tsec              = "io.github.jmcardon"   %% "tsec-password"      % "0.4.0"
+  val jwtCirce          = "com.github.jwt-scala" %% "jwt-circe"          % "9.4.4"
 }

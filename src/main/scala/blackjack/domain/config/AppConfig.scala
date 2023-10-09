@@ -1,6 +1,6 @@
 package blackjack.domain.config
 
-import blackjack.domain.config.AppConfig.{ DatabaseConfig, HttpConfig }
+import blackjack.domain.config.AppConfig.{ DatabaseConfig, HttpConfig, JwtConfig }
 import com.comcast.ip4s.*
 import ciris.*
 import cats.effect.kernel.Async
@@ -8,6 +8,7 @@ import cats.syntax.all.*
 
 final case class AppConfig(
     http: HttpConfig,
+    jwt: JwtConfig,
     db: DatabaseConfig
 )
 
@@ -22,7 +23,19 @@ object AppConfig:
       (
         default("0.0.0.0").as[String],
         default(port"8080").as[Port]
-      ).parMapN { (host, port) => HttpConfig(host, port) }.load[F]
+      ).parMapN(HttpConfig.apply).load[F]
+
+  final case class JwtConfig(
+      expiration: Boolean,
+      secret: String
+  )
+
+  object JwtConfig:
+    def load[F[_]: Async]: F[JwtConfig] =
+      (
+        default("false").as[Boolean],
+        default("secretKey").as[String]
+      ).parMapN(JwtConfig.apply).load[F]
 
   final case class DatabaseConfig(
       url: String,
@@ -40,12 +53,11 @@ object AppConfig:
         default("postgres").as[String],
         default("org.postgresql.Driver").as[String],
         default(10).as[Int]
-      ).parMapN { (url, user, password, driver, connectionPoolSize) =>
-        DatabaseConfig(url, user, password, driver, connectionPoolSize)
-      }.load[F]
+      ).parMapN(DatabaseConfig.apply).load[F]
 
   def load[F[_]: Async]: F[AppConfig] =
     for
       httpConfig     <- HttpConfig.load
+      jwtConfig      <- JwtConfig.load
       databaseConfig <- DatabaseConfig.load
-    yield AppConfig(httpConfig, databaseConfig)
+    yield AppConfig(httpConfig, jwtConfig, databaseConfig)

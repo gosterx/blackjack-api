@@ -12,7 +12,7 @@ object Main extends IOApp.Simple:
     (for
       config     <- AppConfig.load[IO].toResource
       repository <- RepositoryModule.make[IO](config.db)
-      service    <- ServiceModule.make[IO](repository)
+      service    <- ServiceModule.make[IO](repository, config)
       httpApp = HttpApi[IO](service).httpApp
       server <- Ember.default[IO](httpApp, config.http.port)
     yield server).useForever
