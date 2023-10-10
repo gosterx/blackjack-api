@@ -30,6 +30,6 @@ lazy val root = (project in file("."))
       redis4catsEffects,
       tsec,
       jwtCirce,
-      logback % Runtime
+      logback
     )
   )
