@@ -4,7 +4,7 @@ import boot.db.FlywayMigrations
 import boot.domain.config.AppConfig.DatabaseConfig
 import cats.syntax.all.*
 import cats.effect.syntax.all.*
-import cats.effect.kernel.{Async, Resource, Sync}
+import cats.effect.kernel.{ Async, Resource, Sync }
 import com.zaxxer.hikari.HikariConfig
 import doobie.Transactor
 import doobie.hikari.HikariTransactor

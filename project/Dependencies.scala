@@ -16,6 +16,7 @@ object Dependencies {
   object Http4s {
     val dsl    = "org.http4s" %% s"http4s-dsl"          % "1.0.0-M40"
     val server = "org.http4s" %% s"http4s-ember-server" % "1.0.0-M40"
+    val client = "org.http4s" %% s"http4s-ember-client" % "1.0.0-M40"
     val circe  = "org.http4s" %% s"http4s-circe"        % "1.0.0-M40"
   }
 

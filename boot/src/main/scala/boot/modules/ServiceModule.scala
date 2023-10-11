@@ -1,6 +1,7 @@
 package boot.modules
 
 import boot.domain.config.AppConfig
+import wallet.service.Wallet
 import auth.http.JwtProcessor
 import auth.service.Auth
 import cats.effect.kernel.{ Resource, Sync }
@@ -9,7 +10,8 @@ import doobie.util.transactor.Transactor
 import org.typelevel.log4cats.Logger
 
 final case class ServiceModule[F[_]](
-    auth: Auth[F]
+    auth: Auth[F],
+    wallet: Wallet[F]
 )
 
 object ServiceModule:
@@ -20,5 +22,6 @@ object ServiceModule:
   ): Resource[F, ServiceModule[F]] =
     given Transactor[F] = repositoryModule.postgres
     for
-      auth <- Auth.of[F](jwtProcessor).toResource
-    yield ServiceModule(auth)
+      auth   <- Auth.of[F](jwtProcessor).toResource
+      wallet <- Wallet.of[F].toResource
+    yield ServiceModule(auth, wallet)
