@@ -1,6 +1,7 @@
 package auth.service
 
 import auth.domain.user.{ CreateUser, LoginUser, UserInfo }
+import auth.domain.AuthError.*
 import auth.http.JwtProcessor
 import auth.repository.UserRepository
 import cats.effect.kernel.Sync
@@ -33,7 +34,7 @@ object Auth:
         for
           existingPasswordHash <- UserRepository.selectPasswordHash(request.loginName).transact(transactor)
           validationResult     <- BCrypt.checkpwBool[F](request.password, PasswordHash(existingPasswordHash))
-          _                    <- Sync[F].raiseWhen(!validationResult)(new RuntimeException("Hash validation failed"))
+          _                    <- Sync[F].raiseWhen(!validationResult)(IncorrectPassword)
           user                 <- UserRepository.select(request.loginName).transact(transactor)
           token                <- jwtGenerator.generateToken(user)
           _                    <- logger.info("User was successfully logged in")

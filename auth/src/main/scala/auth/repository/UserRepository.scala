@@ -1,9 +1,13 @@
 package auth.repository
 
 import auth.domain.user.{ User, UserInfo }
-import cats.syntax.all.toFunctorOps
+import auth.domain.AuthError.*
+import cats.syntax.all.*
 import doobie.{ ConnectionIO, Fragment }
-import doobie.implicits.toSqlInterpolator
+import doobie.implicits.*
+import doobie.postgres.implicits.*
+import cats.effect.kernel.Sync
+import doobie.util.invariant.UnexpectedEnd
 
 trait UserRepository[F[_]]:
   def insert(userInfo: UserInfo): F[User]
@@ -28,10 +32,20 @@ object UserRepository extends UserRepository[ConnectionIO]:
       sql"SELECT password_hash FROM user_accounts WHERE login_name = $loginName"
 
   override def insert(userInfo: UserInfo): ConnectionIO[User] =
-    SQL.insert(userInfo).update.withUniqueGeneratedKeys[User]("id", "login_name", "first_name", "last_name", "email")
+    SQL
+      .insert(userInfo)
+      .update
+      .withUniqueGeneratedKeys[User]("id", "login_name", "first_name", "last_name", "email")
+      .onUniqueViolation(Sync[ConnectionIO].raiseError[User](DuplicateLoginName))
 
   override def select(loginName: String): ConnectionIO[User] =
     SQL.select(loginName).query[User].unique
 
   override def selectPasswordHash(loginName: String): ConnectionIO[String] =
-    SQL.selectPasswordHash(loginName).query[String].unique
+    SQL
+      .selectPasswordHash(loginName)
+      .query[String]
+      .unique
+      .adaptError {
+        case UnexpectedEnd => IncorrectLoginName
+      }
