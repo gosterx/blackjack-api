@@ -1,5 +1,6 @@
 package wallet.service
 
+import wallet.domain.WalletError.*
 import wallet.domain.{ Amount, Transaction }
 import wallet.repository.TransactionRepository
 import org.typelevel.log4cats.slf4j.Slf4jLogger
@@ -8,6 +9,7 @@ import cats.syntax.all.*
 import doobie.util.transactor.Transactor
 import doobie.implicits.*
 import wallet.domain.TransactionType
+import cats.ApplicativeThrow
 
 trait Wallet[F[_]]:
   def debit(accountId: Int, amount: BigDecimal): F[Unit]
@@ -22,8 +24,10 @@ object Wallet:
 
       override def debit(accountId: Int, amount: BigDecimal): F[Unit] =
         for
-          _ <- TransactionRepository.debit(accountId, amount).transact(transactor)
-          _ <- logger.info(s"Withdrawal $amount from the account with $accountId ID")
+          balance <- balance(accountId)
+          _       <- ApplicativeThrow[F].raiseWhen(amount > balance.amount)(InsufficientFunds)
+          _       <- TransactionRepository.debit(accountId, amount).transact(transactor)
+          _       <- logger.info(s"Withdrawal $amount from the account with $accountId ID")
         yield ()
 
       override def credit(accountId: Int, amount: BigDecimal): F[Unit] =
