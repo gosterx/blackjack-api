@@ -11,7 +11,7 @@ lazy val root =
     .settings(
       name := "blackjack-api"
     )
-    .aggregate(boot, auth, wallet)
+    .aggregate(boot, auth, wallet, lobby)
 
 lazy val boot =
   (project in file("boot"))
@@ -24,7 +24,7 @@ lazy val boot =
         flyway
       )
     )
-    .dependsOn(auth, wallet)
+    .dependsOn(auth, wallet, lobby)
 
 lazy val auth =
   (project in file("auth"))
@@ -50,5 +50,12 @@ lazy val wallet =
   (project in file("wallet"))
     .settings(
       name := "blackjack-wallet-api"
+    )
+    .dependsOn(auth)
+
+lazy val lobby = 
+  (project in file("lobby"))
+    .settings(
+      name := "blackjack-lobby-api"
     )
     .dependsOn(auth)

@@ -3,6 +3,7 @@ package boot.modules
 import auth.http.{ AuthRoutes, JwtProcessor, LoginRoutes }
 import auth.domain.user.*
 import wallet.http.WalletRoutes
+import lobby.http.LobbyRoutes
 import cats.data.{ Kleisli, OptionT }
 import cats.effect.kernel
 import cats.effect.kernel.Async
@@ -35,8 +36,11 @@ final case class HttpApi[F[_]: Async: LoggerFactory](
 
   private val walletRoutes = WalletRoutes[F](services.wallet)
 
+  private val lobbyRoutes = LobbyRoutes[F](services.lobby)
+
   private val routes = Router(
     "api/wallet" -> authMiddleware(walletRoutes.routes),
+    "api/lobby"  -> authMiddleware(lobbyRoutes.routes),
     "api/auth"   -> loginRoutes.routes
   )
 

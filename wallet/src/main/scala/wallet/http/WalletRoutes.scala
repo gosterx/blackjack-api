@@ -9,7 +9,6 @@ import cats.effect.Concurrent
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityDecoder.*
 import org.http4s.circe.CirceEntityEncoder.*
-import org.http4s.HttpRoutes
 import org.http4s.AuthedRoutes
 import auth.domain.user.User
 import org.http4s.server.Router
